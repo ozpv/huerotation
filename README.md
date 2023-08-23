@@ -26,7 +26,7 @@ void RGBToHSL(..., double *h, double *s, double *l);
 
 would assign specific values
 
-but I'll let you do figure that out if you so wish
+but I'll let you figure that out if you so wish
 
 # in "config.h":
 
