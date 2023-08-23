@@ -4,6 +4,9 @@ Small hue to (and from) rgb calculation library written in C
 For Windows users (XP or later), there is a fun real-time screen Hue Rotation effect
 Just compile using your favorite compiler and run the program to see it! 
 
+Please note that it uses WinGDI so it isn't going to be the fastest, and there is no multi-monitor support
+It will assume the primary monitor which you have selected
+
 ## Features:
 
 One method of converting RGB to HSL values
