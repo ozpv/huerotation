@@ -17,6 +17,17 @@ An option to switch between float or double values for the conversion
 
 move "config.h", "conversion.c", and "huerotation.h" into your repository
 
+RGBToHSL(r, g, b) returns struct HSL
+HSLToRGB(h, s, l) returns struct RGB
+
+though you could implement pointers so that:
+
+void RGBToHSL(..., double *h, double *s, double *l);
+
+would assign specific values
+
+but I'll let you do figure that out if you so wish
+
 # in "config.h":
 
 define USE_FLOAT_CONVERSION to convert using float values:
