@@ -12,7 +12,7 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-//#define USE_ALT_TO_RGB
+#define USE_ALT_TO_RGB
 
 template<class Tdecimal>
 class ColorspaceConversion {
@@ -85,9 +85,9 @@ public:
 			rgbd[i] = Lightness - a * max(-1.0, min(min(k - 3.0, 9.0 - k), 1.0));
 		}
 
-		rgb.R = (BYTE)(rgbd[0] * 255.0);
-		rgb.G = (BYTE)(rgbd[1] * 255.0);
-		rgb.B = (BYTE)(rgbd[2] * 255.0);
+		rgb.R = static_cast<BYTE>(rgbd[0] * 255.0);
+		rgb.G = static_cast<BYTE>(rgbd[1] * 255.0);
+		rgb.B = static_cast<BYTE>(rgbd[2] * 255.0);
 #else
 		Tdecimal q;
 		Tdecimal x;
@@ -115,9 +115,9 @@ public:
 		}
 
 		/* scale our values back up from [0, 1] */
-		rgb.R = (BYTE)(red * 255.0);
-		rgb.G = (BYTE)(green * 255.0);
-		rgb.B = (BYTE)(blue * 255.0);
+		rgb.R = static_cast<BYTE>(red * 255.0);
+		rgb.G = static_cast<BYTE>(green * 255.0);
+		rgb.B = static_cast<BYTE>(blue * 255.0);
 #endif
 		
 		return rgb;
@@ -127,9 +127,9 @@ public:
 		/* scale our values to between [0, 1]
 		 * cast our vaules to Tdecimal to ensure the compiler interprets it correctly
 		 */
-		Tdecimal red = (Tdecimal)Red / 255;
-		Tdecimal green = (Tdecimal)Green / 255;
-		Tdecimal blue = (Tdecimal)Blue / 255;
+		Tdecimal red = static_cast<Tdecimal>(Red) / 255.0;
+		Tdecimal green = static_cast<Tdecimal>(Green) / 255.0;
+		Tdecimal blue = static_cast<Tdecimal>(Blue) / 255.0;
 
 		Tdecimal max = max(max(red, green), blue);
 		Tdecimal min = min(min(red, green), blue);
