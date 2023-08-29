@@ -118,9 +118,8 @@ public:
 		rgb.R = (BYTE)(red * 255.0);
 		rgb.G = (BYTE)(green * 255.0);
 		rgb.B = (BYTE)(blue * 255.0);
-
-
 #endif
+		
 		return rgb;
 	}
 
