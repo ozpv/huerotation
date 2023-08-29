@@ -20,13 +20,21 @@ In my experience, the alternative method is more accurate
 
 move "config.h", "conversion.c", and "huerotation.h" into your repository
 
-RGBToHSL(r, g, b) returns struct HSL
-HSLToRGB(h, s, l) returns struct RGB
+```
+RGBToHSL
+```
+returns struct HSL
 
-though you could implement pointers so that:
+```
+HSLToRGB
+```
+returns struct RGB
 
+though, you could implement pointers so that:
+
+```
 void RGBToHSL(..., double *h, double *s, double *l);
-
+```
 would assign specific values to an address
 
 but I'll let you figure that out if you so wish
