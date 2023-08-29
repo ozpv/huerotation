@@ -1,5 +1,5 @@
 # huerotation
-Small hue to (and from) rgb calculation library written in C
+Small hue to (and from) rgb calculation library written in C & C++
 
 For Windows users (XP or later), there is a fun real-time screen Hue Rotation effect
 Just compile using your favorite compiler and run the program to see it! 
@@ -13,7 +13,10 @@ One method of converting RGB to HSL values
 Two methods of converting HSL to RGB values
 An option to switch between float or double values for the conversion 
 
-## How to use:
+There are varying levels of accuracy in each of the HSL to RGB methods
+In my experience, the alternative method is more accurate
+
+## How to use (C):
 
 move "config.h", "conversion.c", and "huerotation.h" into your repository
 
@@ -24,9 +27,38 @@ though you could implement pointers so that:
 
 void RGBToHSL(..., double *h, double *s, double *l);
 
-would assign specific values
+would assign specific values to an address
 
 but I'll let you figure that out if you so wish
+
+## How to use (C++):
+
+structures HSL and RGB are initialized with values 0
+
+you can assign to the structures quite cleverly like in 
+```
+int example(void); 
+```
+
+otherwise:
+```
+ColorspaceConversion<double> colorspaceConversion;
+
+/* ColorspaceConversion<float> colorspaceConversion;
+ * for floats
+ */
+
+colorspaceConversion.hsl.H = 360.0;
+colorspaceConversion.hsl.S = 0.5;
+colorspaceConversion.hsl.L = 0.5;
+```
+
+Usage:
+```
+colorspaceConversion.HSLToRGB(colorspaceConversion.hsl.H, colorspaceConversion.hsl.S, colorspaceConversion.hsl.L);
+
+now we have converted HSL to RGB!
+```
 
 # in "config.h":
 
