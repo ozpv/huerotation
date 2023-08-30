@@ -14,7 +14,7 @@
 
 #include "config.h"
 
-template<class Tdecimal>
+template<typename Tdecimal>
 class ColorspaceConversion {
 private:
 
