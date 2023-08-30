@@ -11,3 +11,8 @@
  */
 
 #define USE_ALT_TO_RGB
+
+/* proto.c */
+
+/* reduces file size */
+#define USE_INLINE_CALCULATIONS
