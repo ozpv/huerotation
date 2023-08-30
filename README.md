@@ -56,9 +56,9 @@ ColorspaceConversion<double> colorspaceConversion;
  * for floats
  */
 
-colorspaceConversion.hsl.H = 360.0;
-colorspaceConversion.hsl.S = 0.5;
-colorspaceConversion.hsl.L = 0.5;
+colorspaceConversion.hsl.Hue = 360.0;
+colorspaceConversion.hsl.Saturation = 0.5;
+colorspaceConversion.hsl.Lightness = 0.5;
 ```
 
 Usage:
