@@ -97,9 +97,6 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 	rgb.Red = (BYTE)(rgbd[0] * 255.0f);
 	rgb.Green = (BYTE)(rgbd[1] * 255.0f);
 	rgb.Blue = (BYTE)(rgbd[2] * 255.0f);
-#ifdef _WIN32
-	rgb.Reserved = 0;
-#endif
 #else
 	float q;
 	float x;
@@ -131,9 +128,10 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 	rgb.Red = (BYTE)(red * 255.0f);
 	rgb.Green = (BYTE)(green * 255.0f);
 	rgb.Blue = (BYTE)(blue * 255.0f);
+#endif
+
 #ifdef _WIN32
 	rgb.Reserved = 0;
-#endif
 #endif
 
 	return rgb;
@@ -230,9 +228,6 @@ RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 	rgb.Red = (BYTE)(rgbd[0] * 255.0);
 	rgb.Green = (BYTE)(rgbd[1] * 255.0);
 	rgb.Blue = (BYTE)(rgbd[2] * 255.0);
-#ifdef _WIN32
-	rgb.Reserved = 0;
-#endif
 #else
 	double q;
 	double x;
@@ -263,9 +258,10 @@ RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 	rgb.Red = (BYTE)(red * 255.0);
 	rgb.Green = (BYTE)(green * 255.0);
 	rgb.Blue = (BYTE)(blue * 255.0);
+#endif
+
 #ifdef _WIN32
 	rgb.Reserved = 0;
-#endif
 #endif
 
 	return rgb;
