@@ -29,8 +29,7 @@ HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	if (max == min) {
 		hue = 0.0f;
 		saturation = 0.0f;
-	}
-	else {
+	} else {
 		/* calculate saturation */
 		saturation = (lightness > 0.5) ? chroma / (2.0f - max - min) : chroma / (max + min);
 
@@ -113,8 +112,7 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 		red = Lightness;
 		green = Lightness;
 		blue = Lightness;
-	}
-	else {
+	} else {
 		q = Lightness < 0.5 ? Lightness * (1.0f + Saturation) : Lightness + Saturation - Lightness * Saturation;
 		x = 2.0f * Lightness - q;
 

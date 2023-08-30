@@ -104,8 +104,7 @@ public:
 			red = Lightness;
 			green = Lightness;
 			blue = Lightness;
-		}
-		else {
+		} else {
 			q = Lightness < 0.5 ? Lightness * (1.0 + Saturation) : Lightness + Saturation - Lightness * Saturation;
 			x = 2.0 * Lightness - q;
 
@@ -148,8 +147,7 @@ public:
 		if (max == min) {
 			hue = 0.0;
 			saturation = 0.0;
-		}
-		else {
+		} else {
 			/* calculate saturation */
 			saturation = (lightness > 0.5) ? chroma / (2.0 - max - min) : chroma / (max + min);
 
