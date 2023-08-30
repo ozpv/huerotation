@@ -80,5 +80,5 @@ define USE_ALT_TO_RGB to convert HSL to RGB using an alternative calculation:
 #define USE_ALT_TO_RGB
 ```
 
-# proto.c
+# matrix.c
 Another way to rotate hue that varies in levels of accuracy
