@@ -8,10 +8,10 @@
 HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	HSL hsl;
 
-	/* scale our values to between [0, 1] */
-	float red = (float)Red / 255;
-	float green = (float)Green / 255;
-	float blue = (float)Blue / 255;
+	/* scale our values to [0, 1] */
+	float red = (float)Red / 255.0f;
+	float green = (float)Green / 255.0f;
+	float blue = (float)Blue / 255.0f;
 
 	float max = max(max(red, green), blue);
 	float min = min(min(red, green), blue);
@@ -23,41 +23,59 @@ HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	float saturation;
 
 	/* calculate the lightness value by averaging max and min */
-	float lightness = (max + min) / 2;
+	float lightness = (max + min) / 2.0f;
 
 	/* color is achromatic and we don't need to calculate the hue */
 	if (max == min) {
-		hue = 0;
-		saturation = 0;
-	} else {
+		hue = 0.0f;
+		saturation = 0.0f;
+	}
+	else {
 		/* calculate saturation */
-		saturation = (lightness > 0.5) ? chroma / (2 - max - min) : chroma / (max + min);
+		saturation = (lightness > 0.5) ? chroma / (2.0f - max - min) : chroma / (max + min);
 
 		/* calculate our hue and apply appropriate shift towards M */
 		if (max == red)
-			/* modulus doesn't work in C on float / float numbers and I don't want to use fmod so we do a quick if else */
-			hue = (green - blue) / chroma + (green < blue ? 6 : 0);
+			/* modulus doesn't work in C on double / float numbers and I don't want to use fmod so we do a quick if else */
+			hue = (green - blue) / chroma + (green < blue ? 6.0f : 0.0f);
 		else if (max == green)
-			hue = (blue - red) / chroma + 2;
+			hue = (blue - red) / chroma + 2.0f;
 		else if (max == blue)
-			hue = (red - green) / chroma + 4;
+			hue = (red - green) / chroma + 4.0f;
 	}
 
 	/* scale the hue from distance to distance in degrees by multiplying by 60 */
-	hsl.Hue = hue * 60;
+	hsl.Hue = hue * 60.0f;
 	hsl.Saturation = saturation;
 	hsl.Lightness = lightness;
 
 	return hsl;
 }
 
-#ifdef USE_ALT_TO_RGB
-RGB fHSLToRGBAlt(float Hue, float Saturation, float Lightness) {
+/* it's possible to integrate this into the function itself,
+ * but seperating it makes it easier to understand
+ */
+float fHUEToCOLOR(float p, float q, float t) {
+	if (t < 0.0f)
+		t++;
+	if (t > 1.0f)
+		t--;
+	if (1.0f / 6.0f > t)
+		return p + (q - p) * 6.0f * t;
+	if (1.0f / 2.0f > t)
+		return q;
+	if (2.0f / 3.0f > t)
+		return p + (q - p) * (2.0f / 3.0f - t) * 6.0f;
+	return p;
+}
+
+RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 	RGB rgb;
 
+#ifdef USE_ALT_TO_RGB
 	float k;
 
-	float a = Saturation * min(Lightness, 1 - Lightness);
+	float a = Saturation * min(Lightness, 1.0f - Lightness);
 
 	/* to catch our RGB values */
 	float rgbd[3];
@@ -82,35 +100,12 @@ RGB fHSLToRGBAlt(float Hue, float Saturation, float Lightness) {
 #ifdef _WIN32
 	rgb.Reserved = 0;
 #endif
-
-	return rgb;
-}
 #else
-/* it's possible to integrate this into the function itself,
- * but seperating it makes it easier to understand
- */
-float fHUEToCOLOR(float p, float q, float t) {
-	if (t < 0.0f)
-		t++;
-	if (t > 1.0f)
-		t--;
-	if (1.0f / 6.0f > t)
-		return p + (q - p) * 6 * t;
-	if (1.0f / 2.0f > t)
-		return q;
-	if (2.0f / 3.0f > t)
-		return p + (q - p) * (2.0f / 3.0f - t) * 6;
-	return p;
-}
-
-RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
-	RGB rgb;
-
 	float q;
 	float x;
 
 	/* make sure the value is in range [0, 360] then find hue "prime" */
-	float hue = (int)Hue % 360 / 360.0f;
+	float hue = (int)(Hue) % 360 / 360.0f;
 
 	float red = 0.0f;
 	float green = 0.0f;
@@ -121,14 +116,15 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 		red = Lightness;
 		green = Lightness;
 		blue = Lightness;
-	} else {
-		q = Lightness < 0.5f ? Lightness * (1.0f + Saturation) : Lightness + Saturation - Lightness * Saturation;
+	}
+	else {
+		q = Lightness < 0.5 ? Lightness * (1.0f + Saturation) : Lightness + Saturation - Lightness * Saturation;
 		x = 2.0f * Lightness - q;
 
 		/* convert hue back into RGB color */
-		red = fHUEToCOLOR(x, q, hue + 1.0f / 3.0f);
-		green = fHUEToCOLOR(x, q, hue);
-		blue = fHUEToCOLOR(x, q, hue - 1.0f / 3.0f);
+		red = dHUEToCOLOR(x, q, hue + 1.0f / 3.0f);
+		green = dHUEToCOLOR(x, q, hue);
+		blue = dHUEToCOLOR(x, q, hue - 1.0f / 3.0f);
 	}
 
 	/* scale our values back up from [0, 1] */
@@ -138,18 +134,18 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 #ifdef _WIN32
 	rgb.Reserved = 0;
 #endif
+#endif
 
 	return rgb;
 }
-#endif
 #else
 HSL dRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	HSL hsl; 
 
-	/* scale our values to between [0, 1] */
-	double red = (double)Red / 255;
-	double green = (double)Green / 255;
-	double blue = (double)Blue / 255;
+	/* scale our values to [0, 1] */
+	double red = (double)Red / 255.0;
+	double green = (double)Green / 255.0;
+	double blue = (double)Blue / 255.0;
 
 	double max = max(max(red, green), blue);
 	double min = min(min(red, green), blue);
@@ -161,41 +157,58 @@ HSL dRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	double saturation;
 
 	/* calculate the lightness value by averaging max and min */
-	double lightness = (max + min) / 2;
+	double lightness = (max + min) / 2.0;
 
 	/* color is achromatic and we don't need to calculate the hue */
 	if (max == min) {
-		hue = 0;
-		saturation = 0;
+		hue = 0.0;
+		saturation = 0.0;
 	} else { 
 	/* calculate saturation */
-		saturation = (lightness > 0.5) ? chroma / (2 - max - min) : chroma / (max + min);
+		saturation = (lightness > 0.5) ? chroma / (2.0 - max - min) : chroma / (max + min);
 
 	/* calculate our hue and apply appropriate shift towards M */
 		if (max == red)
 	/* modulus doesn't work in C on double / float numbers and I don't want to use fmod so we do a quick if else */
-			hue = (green - blue) / chroma + (green < blue ? 6 : 0); 
+			hue = (green - blue) / chroma + (green < blue ? 6.0 : 0.0); 
 		else if (max == green)
-			hue = (blue - red) / chroma + 2;
+			hue = (blue - red) / chroma + 2.0;
 		else if (max == blue)
-			hue = (red - green) / chroma + 4;
+			hue = (red - green) / chroma + 4.0;
 	}
 
 	/* scale the hue from distance to distance in degrees by multiplying by 60 */
-	hsl.Hue = hue * 60;
+	hsl.Hue = hue * 60.0;
 	hsl.Saturation = saturation;
 	hsl.Lightness = lightness;
 
 	return hsl;
 }
 
-#ifdef USE_ALT_TO_RGB
-RGB dHSLToRGBAlt(double Hue, double Saturation, double Lightness) {
+/* it's possible to integrate this into the function itself,
+ * but seperating it makes it easier to understand
+ */
+double dHUEToCOLOR(double p, double q, double t) {
+	if (t < 0.0)
+		t++;
+	if (t > 1.0)
+		t--;
+	if (1.0 / 6.0 > t)
+		return p + (q - p) * 6.0 * t;
+	if (1.0 / 2.0 > t)
+		return q;
+	if (2.0 / 3.0 > t)
+		return p + (q - p) * (2.0 / 3.0 - t) * 6.0;
+	return p;
+}
+
+RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 	RGB rgb;
 
+#ifdef USE_ALT_TO_RGB
 	double k;
 
-	double a = Saturation * min(Lightness, 1 - Lightness);
+	double a = Saturation * min(Lightness, 1.0 - Lightness);
 
 	/* to catch our RGB values */
 	double rgbd[3];
@@ -220,30 +233,7 @@ RGB dHSLToRGBAlt(double Hue, double Saturation, double Lightness) {
 #ifdef _WIN32
 	rgb.Reserved = 0;
 #endif
-
-	return rgb;
-}
 #else
-/* it's possible to integrate this into the function itself,
- * but seperating it makes it easier to understand
- */
-double dHUEToCOLOR(double p, double q, double t) {
-	if (t < 0.0)
-		t++;
-	if (t > 1.0)
-		t--;
-	if (1.0 / 6.0 > t)
-		return p + (q - p) * 6.0 * t;
-	if (1.0 / 2.0 > t)
-		return q;
-	if (2.0 / 3.0 > t)
-		return p + (q - p) * (2.0 / 3.0 - t) * 6.0;
-	return p;
-}
-
-RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
-	RGB rgb;
-
 	double q;
 	double x;
 
@@ -276,8 +266,8 @@ RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 #ifdef _WIN32
 	rgb.Reserved = 0;
 #endif
+#endif
 
 	return rgb;
 }
-#endif
 #endif
