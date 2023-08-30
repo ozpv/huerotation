@@ -38,8 +38,7 @@ private:
 			val -= mod;
 			/* recursion to ensure the MOD value */
 			tmod(val, mod);
-		}
-		else
+		} else
 			return val;
 	}
 
