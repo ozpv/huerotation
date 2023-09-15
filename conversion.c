@@ -5,6 +5,22 @@
 #include "huerotation.h"
 
 #ifdef USE_FLOAT_CONVERSION
+inline float maxf(float a, float b) {
+	return (a > b) ? a : b;
+}
+
+inline float minf(float a, float b) {
+	return (a < b) ? a : b;
+}
+
+inline float maxf3(float a, float b, float c) {
+	return ((a > b) ? a : b) > c ? ((a > b) ? a : b) : c;
+}
+
+inline float minf3(float a, float b, float c) {
+	return ((a < b) ? a : b) < c ? ((a < b) ? a : b) : c;
+}
+
 HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	HSL hsl;
 
@@ -13,13 +29,13 @@ HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	float green = (float)Green / 255.0f;
 	float blue = (float)Blue / 255.0f;
 
-	float max = max(max(red, green), blue);
-	float min = min(min(red, green), blue);
+	float max = maxf3(red, green, blue);
+	float min = minf3(red, green, blue);
 
 	/* calculate chroma */
 	float chroma = max - min;
 
-	float hue;
+	float hue = 0.0f;
 	float saturation;
 
 	/* calculate the lightness value by averaging max and min */
@@ -54,7 +70,7 @@ HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 /* it's possible to integrate this into the function itself,
  * but seperating it makes it easier to understand
  */
-float fHUEToCOLOR(float p, float q, float t) {
+inline float fHUEToCOLOR(float p, float q, float t) {
 	if (t < 0.0f)
 		t++;
 	if (t > 1.0f)
@@ -74,7 +90,7 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 #ifdef USE_ALT_TO_RGB
 	float k;
 
-	float a = Saturation * min(Lightness, 1.0f - Lightness);
+	float a = Saturation * minf(Lightness, 1.0f - Lightness);
 
 	/* to catch our RGB values */
 	float rgbd[3];
@@ -89,7 +105,7 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 		if (k >= 12.0f)
 			k -= 12.0f;
 
-		rgbd[i] = Lightness - a * max(-1.0f, min(min(k - 3.0f, 9.0f - k), 1.0f));
+		rgbd[i] = Lightness - a * maxf(-1.0f, minf3(k - 3.0f, 9.0f - k, 1.0f));
 	}
 
 	/* scale our values back up from [0, 1] */
@@ -117,9 +133,9 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 		x = 2.0f * Lightness - q;
 
 		/* convert hue back into RGB color */
-		red = dHUEToCOLOR(x, q, hue + 1.0f / 3.0f);
-		green = dHUEToCOLOR(x, q, hue);
-		blue = dHUEToCOLOR(x, q, hue - 1.0f / 3.0f);
+		red = fHUEToCOLOR(x, q, hue + 1.0f / 3.0f);
+		green = fHUEToCOLOR(x, q, hue);
+		blue = fHUEToCOLOR(x, q, hue - 1.0f / 3.0f);
 	}
 
 	/* scale our values back up from [0, 1] */
@@ -135,6 +151,22 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 	return rgb;
 }
 #else
+inline double maxd(double a, double b) {
+	return (a > b) ? a : b;
+}
+
+inline double mind(double a, double b) {
+	return (a < b) ? a : b;
+}
+
+inline double maxd3(double a, double b, double c) {
+	return ((a > b) ? a : b) > c ? ((a > b) ? a : b) : c;
+}
+
+inline double mind3(double a, double b, double c) {
+	return ((a < b) ? a : b) < c ? ((a < b) ? a : b) : c;
+}
+
 HSL dRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	HSL hsl; 
 
@@ -143,13 +175,13 @@ HSL dRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	double green = (double)Green / 255.0;
 	double blue = (double)Blue / 255.0;
 
-	double max = max(max(red, green), blue);
-	double min = min(min(red, green), blue);
+	double max = maxd3(red, green, blue);
+	double min = mind3(red, green, blue);
 
 	/* calculate chroma */
 	double chroma = max - min;
 
-	double hue;
+	double hue = 0.0;
 	double saturation;
 
 	/* calculate the lightness value by averaging max and min */
@@ -184,7 +216,7 @@ HSL dRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 /* it's possible to integrate this into the function itself,
  * but seperating it makes it easier to understand
  */
-double dHUEToCOLOR(double p, double q, double t) {
+inline double dHUEToCOLOR(double p, double q, double t) {
 	if (t < 0.0)
 		t++;
 	if (t > 1.0)
@@ -204,7 +236,7 @@ RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 #ifdef USE_ALT_TO_RGB
 	double k;
 
-	double a = Saturation * min(Lightness, 1.0 - Lightness);
+	double a = Saturation * mind(Lightness, 1.0 - Lightness);
 
 	/* to catch our RGB values */
 	double rgbd[3];
@@ -219,7 +251,7 @@ RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 		if (k >= 12.0)
 			k -= 12.0;
 
-		rgbd[i] = Lightness - a * max(-1.0, min(min(k - 3.0, 9.0 - k), 1.0));
+		rgbd[i] = Lightness - a * maxd(-1.0, mind3(k - 3.0, 9.0 - k, 1.0));
 	}
 
 	/* scale our values back up from [0, 1] */
