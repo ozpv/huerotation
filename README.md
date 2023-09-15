@@ -43,12 +43,6 @@ but I'll let you figure that out if you so wish
 
 structures HSL and RGB are initialized with values 0
 
-you can assign to the structures quite cleverly like in 
-```
-int example(void); 
-```
-
-otherwise:
 ```
 Color<double> color;
 
