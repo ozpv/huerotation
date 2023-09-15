@@ -29,9 +29,8 @@ DWORD WINAPI HueRotation(LPVOID lParam) {
 			rgb[i] = HSLToRGB(hsl.Hue, hsl.Saturation, hsl.Lightness);
 		}
 		BitBlt(screenDC, 0, 0, metrics->screenWidth, metrics->screenHeight, compatibleDC, 0, 0, SRCCOPY);
-		
-		Sleep(100);
 	}
+
 	return 0;
 }
 

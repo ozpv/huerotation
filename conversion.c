@@ -1,24 +1,20 @@
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include "huerotation.h"
 
 #ifdef USE_FLOAT_CONVERSION
-inline float maxf(float a, float b) {
+inline float fmax(float a, float b) {
 	return (a > b) ? a : b;
 }
 
-inline float minf(float a, float b) {
+inline float fmin(float a, float b) {
 	return (a < b) ? a : b;
 }
 
-inline float maxf3(float a, float b, float c) {
-	return ((a > b) ? a : b) > c ? ((a > b) ? a : b) : c;
+inline float fmax3(float a, float b, float c) {
+	return fmax(fmax(a, b), c);
 }
 
-inline float minf3(float a, float b, float c) {
-	return ((a < b) ? a : b) < c ? ((a < b) ? a : b) : c;
+inline float fmin3(float a, float b, float c) {
+	return fmin(fmin(a, b), c);
 }
 
 HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
@@ -29,8 +25,8 @@ HSL fRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	float green = (float)Green / 255.0f;
 	float blue = (float)Blue / 255.0f;
 
-	float max = maxf3(red, green, blue);
-	float min = minf3(red, green, blue);
+	float max = fmax3(red, green, blue);
+	float min = fmin3(red, green, blue);
 
 	/* calculate chroma */
 	float chroma = max - min;
@@ -90,7 +86,7 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 #ifdef USE_ALT_TO_RGB
 	float k;
 
-	float a = Saturation * minf(Lightness, 1.0f - Lightness);
+	float a = Saturation * fmin(Lightness, 1.0f - Lightness);
 
 	/* to catch our RGB values */
 	float rgbd[3];
@@ -105,7 +101,7 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 		if (k >= 12.0f)
 			k -= 12.0f;
 
-		rgbd[i] = Lightness - a * maxf(-1.0f, minf3(k - 3.0f, 9.0f - k, 1.0f));
+		rgbd[i] = Lightness - a * fmax(-1.0f, fmin3(k - 3.0f, 9.0f - k, 1.0f));
 	}
 
 	/* scale our values back up from [0, 1] */
@@ -151,20 +147,20 @@ RGB fHSLToRGB(float Hue, float Saturation, float Lightness) {
 	return rgb;
 }
 #else
-inline double maxd(double a, double b) {
+inline double dmax(double a, double b) {
 	return (a > b) ? a : b;
 }
 
-inline double mind(double a, double b) {
+inline double dmin(double a, double b) {
 	return (a < b) ? a : b;
 }
 
-inline double maxd3(double a, double b, double c) {
-	return ((a > b) ? a : b) > c ? ((a > b) ? a : b) : c;
+inline double dmax3(double a, double b, double c) {
+	return dmax(dmax(a, b), c);
 }
 
-inline double mind3(double a, double b, double c) {
-	return ((a < b) ? a : b) < c ? ((a < b) ? a : b) : c;
+inline double dmin3(double a, double b, double c) {
+	return dmin(dmin(a, b), c);
 }
 
 HSL dRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
@@ -175,8 +171,8 @@ HSL dRGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
 	double green = (double)Green / 255.0;
 	double blue = (double)Blue / 255.0;
 
-	double max = maxd3(red, green, blue);
-	double min = mind3(red, green, blue);
+	double max = dmax3(red, green, blue);
+	double min = dmin3(red, green, blue);
 
 	/* calculate chroma */
 	double chroma = max - min;
@@ -236,7 +232,7 @@ RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 #ifdef USE_ALT_TO_RGB
 	double k;
 
-	double a = Saturation * mind(Lightness, 1.0 - Lightness);
+	double a = Saturation * dmin(Lightness, 1.0 - Lightness);
 
 	/* to catch our RGB values */
 	double rgbd[3];
@@ -251,7 +247,7 @@ RGB dHSLToRGB(double Hue, double Saturation, double Lightness) {
 		if (k >= 12.0)
 			k -= 12.0;
 
-		rgbd[i] = Lightness - a * maxd(-1.0, mind3(k - 3.0, 9.0 - k, 1.0));
+		rgbd[i] = Lightness - a * dmax(-1.0, dmin3(k - 3.0, 9.0 - k, 1.0));
 	}
 
 	/* scale our values back up from [0, 1] */

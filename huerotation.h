@@ -1,11 +1,7 @@
 #pragma once
 
+#include <windows.h>
 #include "config.h"
-
-/* so the compiler doesn't throw a bajillion errors if you are compiling on unix */
-#ifndef _WIN32
-#define BYTE unsigned char
-#endif
 
 typedef struct {
 	HDC screenDC; /* screen device context */
