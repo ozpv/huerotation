@@ -14,12 +14,12 @@ inline T tmin(T a, T b) {
 
 template<typename T>
 inline T tmax3(T a, T b, T c) {
-	return ((a > b) ? a : b) > c ? ((a > b) ? a : b) : c;
+	return tmax<T>(tmax<T>(a, b), c);
 }
 
 template<typename T>
 inline T tmin3(T a, T b, T c) {
-	return ((a < b) ? a : b) < c ? ((a < b) ? a : b) : c;
+	return tmin<T>(tmin<T>(a, b), c);
 }
 
 template<typename T>
