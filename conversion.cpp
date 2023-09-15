@@ -1,24 +1,32 @@
-#ifdef _WIN32
-#include <windows.h>
-#else 
-#define BYTE unsigned char
-#endif
-
-#ifndef max
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-
 #include "config.h"
 
-template<typename Tdecimal>
-class ColorspaceConversion {
+#define BYTE unsigned char
+
+template<typename T>
+inline T tmax(T a, T b) {
+	return (a > b) ? a : b;
+}
+
+template<typename T>
+inline T tmin(T a, T b) {
+	return (a < b) ? a : b;
+}
+
+template<typename T>
+inline T tmax3(T a, T b, T c) {
+	return ((a > b) ? a : b) > c ? ((a > b) ? a : b) : c;
+}
+
+template<typename T>
+inline T tmin3(T a, T b, T c) {
+	return ((a < b) ? a : b) < c ? ((a < b) ? a : b) : c;
+}
+
+template<typename T>
+class Color {
 private:
 
-	Tdecimal HUEToCOLOR(Tdecimal p, Tdecimal q, Tdecimal t) {
+	inline T HUEToCOLOR(T p, T q, T t) {
 		if (t < 0.0)
 			t++;
 		if (t > 1.0)
@@ -33,7 +41,7 @@ private:
 	}
 
 	/* lightweight float/double mod function */
-	Tdecimal tmod(Tdecimal val, Tdecimal mod) {
+	inline T tmod(T val, T mod) {
 		if (val >= mod) {
 			val -= mod;
 			/* recursion to ensure the MOD value */
@@ -45,12 +53,12 @@ private:
 public:
 
 	struct HSL {
-		Tdecimal Hue; /* hue in degrees [0, 360] */
-		Tdecimal Saturation; /* saturation multiplier [0, 1] */
-		Tdecimal Lightness; /* lightness multiplier [0, 1] */
+		T Hue; /* hue in degrees [0, 360] */
+		T Saturation; /* saturation multiplier [0, 1] */
+		T Lightness; /* lightness multiplier [0, 1] */
 	};
 
-	HSL hsl = { 0 };
+	HSL hsl = { 0, 0, 0 };
 
 	struct RGB {
 		BYTE Red; /* Red value [0, 255] */
@@ -61,92 +69,34 @@ public:
 #endif
 	};
 
-	RGB rgb = { 0 };
+	RGB rgb = { 0, 0, 0 };
 
-	RGB HSLToRGB(Tdecimal Hue, Tdecimal Saturation, Tdecimal Lightness) {
-#ifdef USE_ALT_TO_RGB
-		Tdecimal k;
-
-		Tdecimal a = Saturation * min(Lightness, 1 - Lightness);
-
-		/* to catch our RGB values */
-		Tdecimal rgbd[3];
-
-		/* to calculate f(0) f(8) f(4) */
-		Tdecimal n[3] = { 0.0, 8.0, 4.0 };
-
-		for (int i = 0; i < 3; i++) {
-			k = (n[i] + Hue / 30.0);
-
-			/* simple mod template */
-			k = tmod(k, 12);
-
-			rgbd[i] = Lightness - a * max(-1.0, min(min(k - 3.0, 9.0 - k), 1.0));
-		}
-
-		rgb.Red = static_cast<BYTE>(rgbd[0] * 255.0);
-		rgb.Green = static_cast<BYTE>(rgbd[1] * 255.0);
-		rgb.Blue = static_cast<BYTE>(rgbd[2] * 255.0);
-#else
-		Tdecimal q;
-		Tdecimal x;
-
-		/* make sure the value is in range [0, 360] then find hue "prime" */
-		Tdecimal hue = static_cast<int>(Hue) % 360 / 360.0;
-
-		Tdecimal red = 0.0;
-		Tdecimal green = 0.0;
-		Tdecimal blue = 0.0;
-
-		/* color is achromatic and doesn't need hue calculations */
-		if (Saturation == 0.0) {
-			red = Lightness;
-			green = Lightness;
-			blue = Lightness;
-		} else {
-			q = Lightness < 0.5 ? Lightness * (1.0 + Saturation) : Lightness + Saturation - Lightness * Saturation;
-			x = 2.0 * Lightness - q;
-
-			/* convert hue back into RGB color */
-			red = HUEToCOLOR(x, q, hue + 1.0 / 3.0);
-			green = HUEToCOLOR(x, q, hue);
-			blue = HUEToCOLOR(x, q, hue - 1.0 / 3.0);
-		}
-
-		/* scale our values back up from [0, 1] */
-		rgb.Red = static_cast<BYTE>(red * 255.0);
-		rgb.Green = static_cast<BYTE>(green * 255.0);
-		rgb.Blue = static_cast<BYTE>(blue * 255.0);
-#endif
-
-		return rgb;
-	}
-
-	HSL RGBToHSL(BYTE Red, BYTE Green, BYTE Blue) {
+	void RGBToHSL(void) {
 		/* scale our values to between [0, 1]
-		 * cast our vaules to Tdecimal to ensure the compiler interprets it correctly
+		 * cast our vaules to T to ensure the compiler interprets it correctly
 		 */
-		Tdecimal red = static_cast<Tdecimal>(Red) / 255.0;
-		Tdecimal green = static_cast<Tdecimal>(Green) / 255.0;
-		Tdecimal blue = static_cast<Tdecimal>(Blue) / 255.0;
+		T red = static_cast<T>(rgb.Red) / 255.0;
+		T green = static_cast<T>(rgb.Green) / 255.0;
+		T blue = static_cast<T>(rgb.Blue) / 255.0;
 
-		Tdecimal max = max(max(red, green), blue);
-		Tdecimal min = min(min(red, green), blue);
+		T max = tmax3<T>(red, green, blue);
+		T min = tmin3<T>(red, green, blue);
 
 		/* calculate chroma */
-		Tdecimal chroma = max - min;
+		T chroma = max - min;
 
-		Tdecimal hue;
-		Tdecimal saturation;
+		T hue;
+		T saturation;
 
 		/* calculate the lightness value by averaging max and min */
-		Tdecimal lightness = (max + min) / 2.0;
+		T lightness = (max + min) / 2.0;
 
 		/* color is achromatic and we don't need to calculate the hue */
 		if (max == min) {
 			hue = 0.0;
 			saturation = 0.0;
-		} else {
+		}
+		else {
 			/* calculate saturation */
 			saturation = (lightness > 0.5) ? chroma / (2.0 - max - min) : chroma / (max + min);
 
@@ -164,27 +114,84 @@ public:
 		hsl.Hue = hue * 60.0;
 		hsl.Saturation = saturation;
 		hsl.Lightness = lightness;
+	}
 
-		return hsl;
+	void HSLToRGB(void) {
+#ifdef USE_ALT_TO_RGB
+		T k;
+
+		T a = hsl.Saturation * tmin<T>(hsl.Lightness, 1 - hsl.Lightness);
+
+		/* to catch our RGB values */
+		T rgbd[3];
+
+		/* to calculate f(0) f(8) f(4) */
+		T n[3] = { 0.0, 8.0, 4.0 };
+
+		for (int i = 0; i < 3; i++) {
+			k = (n[i] + hsl.Hue / 30.0);
+
+			/* simple mod template */
+			k = tmod(k, 12);
+
+			rgbd[i] = hsl.Lightness - a * tmax<T>(-1.0, tmin3<T>(k - 3.0, 9.0 - k, 1.0));
+		}
+
+		rgb.Red = static_cast<BYTE>(rgbd[0] * 255.0);
+		rgb.Green = static_cast<BYTE>(rgbd[1] * 255.0);
+		rgb.Blue = static_cast<BYTE>(rgbd[2] * 255.0);
+#else
+		T q;
+		T x;
+
+		/* make sure the value is in range [0, 360] then find hue "prime" */
+		T hue = static_cast<int>(hsl.Hue) % 360 / 360.0;
+
+		T red = 0.0;
+		T green = 0.0;
+		T blue = 0.0;
+
+		/* color is achromatic and doesn't need hue calculations */
+		if (hsl.Saturation == 0.0) {
+			red = hsl.Lightness;
+			green = hsl.Lightness;
+			blue = hsl.Lightness;
+		} else {
+			q = hsl.Lightness < 0.5 ? hsl.Lightness * (1.0 + hsl.Saturation) : hsl.Lightness + hsl.Saturation - hsl.Lightness * hsl.Saturation;
+			x = 2.0 * hsl.Lightness - q;
+
+			/* convert hue back into RGB color */
+			red = HUEToCOLOR(x, q, hue + 1.0 / 3.0);
+			green = HUEToCOLOR(x, q, hue);
+			blue = HUEToCOLOR(x, q, hue - 1.0 / 3.0);
+		}
+
+		/* scale our values back up from [0, 1] */
+		rgb.Red = static_cast<BYTE>(red * 255.0);
+		rgb.Green = static_cast<BYTE>(green * 255.0);
+		rgb.Blue = static_cast<BYTE>(blue * 255.0);
+#endif
 	}
 };
 
 #include <iostream>
 
 int example(void) {
-	ColorspaceConversion<double> colorspaceConversion;
+	Color<double> color;
 
-	colorspaceConversion.RGBToHSL(221, 32, 99);
+	color.rgb = { 255, 78, 99 };
 
-	std::cout << colorspaceConversion.hsl.Hue << std::endl;
-	std::cout << colorspaceConversion.hsl.Saturation << std::endl;
-	std::cout << colorspaceConversion.hsl.Lightness << std::endl;
+	color.RGBToHSL();
 
-	colorspaceConversion.HSLToRGB(colorspaceConversion.hsl.Hue, colorspaceConversion.hsl.Saturation, colorspaceConversion.hsl.Lightness);
+	std::cout << color.hsl.Hue << std::endl;
+	std::cout << color.hsl.Saturation << std::endl;
+	std::cout << color.hsl.Lightness << std::endl;
 
-	std::cout << static_cast<int>(colorspaceConversion.rgb.Red) << std::endl;
-	std::cout << static_cast<int>(colorspaceConversion.rgb.Green) << std::endl;
-	std::cout << static_cast<int>(colorspaceConversion.rgb.Blue) << std::endl;
+	color.HSLToRGB();
+
+	std::cout << static_cast<int>(color.rgb.Red) << std::endl;
+	std::cout << static_cast<int>(color.rgb.Green) << std::endl;
+	std::cout << static_cast<int>(color.rgb.Blue) << std::endl;
 
 	return 0;
 }
