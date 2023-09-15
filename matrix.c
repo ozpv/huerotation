@@ -1,28 +1,23 @@
-#ifdef _WIN32
 #include <windows.h>
-#else
-#define BYTE unsigned char
-#endif
-
 #include "config.h"
 #include "huerotation.h"
 
 #ifdef USE_INLINE_CALCULATIONS
-double isin(double x) {
+volatile double isin(double x) {
 	__asm {
 		fld x
 		fsin
 	}
 }
 
-double icos(double x) {
+volatile double icos(double x) {
 	__asm {
 		fld x
 		fcos
 	}
 }
 
-double isqrt(double x) {
+volatile double isqrt(double x) {
 	__asm {
 		fld x
 		fsqrt
@@ -101,7 +96,9 @@ int proto(void) {
 
 	matrixRotation.hsl.Hue = 6.0;
 
-	/* for this calculation, these values are no longer bound to [0, 1] */
+	/* for this calculation, these values are no longer bound to [0, 1] 
+         * (we're actually in HSV but im too lazy to make a HSV structure)
+         */
 	matrixRotation.hsl.Saturation = 1.0;
 	matrixRotation.hsl.Lightness = 1.0;
 
