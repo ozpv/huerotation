@@ -50,20 +50,20 @@ int example(void);
 
 otherwise:
 ```
-ColorspaceConversion<double> colorspaceConversion;
+Color<double> color;
 
-/* ColorspaceConversion<float> colorspaceConversion;
+/* Color<float> color;
  * for floats
  */
 
-colorspaceConversion.hsl.Hue = 360.0;
-colorspaceConversion.hsl.Saturation = 0.5;
-colorspaceConversion.hsl.Lightness = 0.5;
+color.hsl.Hue = 360.0;
+color.hsl.Saturation = 0.5;
+color.hsl.Lightness = 0.5;
 ```
 
 Usage:
 ```
-colorspaceConversion.HSLToRGB(colorspaceConversion.hsl.H, colorspaceConversion.hsl.S, colorspaceConversion.hsl.L);
+color.HSLToRGB();
 
 now we have converted HSL to RGB!
 ```
